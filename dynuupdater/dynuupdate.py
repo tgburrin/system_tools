@@ -302,7 +302,7 @@ def parse_arguments() -> dict:
         type=str,
         required=False,
         default="/etc/default/dynu_update.yaml",
-        help="The destination dump directory"
+        help="The process configuration file"
     )
 
     return vars(parser.parse_args())
