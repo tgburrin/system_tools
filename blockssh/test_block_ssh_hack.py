@@ -1,4 +1,6 @@
 from unittest.mock import Mock
+
+import pytest
 import yaml
 import block_ssh_hack as block
 import json
@@ -70,3 +72,41 @@ def test_get_block_set_details():
         json.loads('{"metainfo": {"version": "0.9.8", "release_name": "E.D.S.", "json_schema_version": 1}}')))
     block.list_table_sets = Mock(return_value=['SSH_DEVLOG_BLOCK'])
     assert block.init_block_set() is None
+
+
+def test_get_block_set_details_error():
+    block.run_nft_command = Mock(return_value=(
+        json.loads('[{"set":'
+                   '{"family": "ip", "name": "SSH_DEV_LOG_BLOCK", "table": "filter",'
+                   '"type": "ipv6_addr", "handle": 15, "flags": []}'
+                   '}]'),
+        json.loads('{"metainfo": {"version": "0.9.8", "release_name": "E.D.S.", "json_schema_version": 1}}')))
+    block.list_table_sets = Mock(return_value=['SSH_DEV_LOG_BLOCK'])
+    with pytest.raises(AssertionError) as ex:
+        block.init_block_set()
+
+    assert str(ex.value) == 'the set must be created to contain ipv4 addresses'
+
+    block.run_nft_command = Mock(return_value=(
+        json.loads('[{"set":'
+                   '{"family": "inet", "name": "SSH_DEV_LOG_BLOCK", "table": "filter",'
+                   '"type": "ipv4_addr", "handle": 15, "flags": ["timeout"]}'
+                   '}]'),
+        json.loads('{"metainfo": {"version": "0.9.8", "release_name": "E.D.S.", "json_schema_version": 1}}')))
+
+    with pytest.raises(AssertionError) as ex:
+        block.init_block_set()
+
+    assert str(ex.value) == 'address family is not ipv4'
+
+    block.run_nft_command = Mock(return_value=(
+        json.loads('[{"set":'
+                   '{"family": "ip", "name": "SSH_DEV_LOG_BLOCK", "table": "filter",'
+                   '"type": "ipv4_addr", "handle": 15, "flags": []}'
+                   '}]'),
+        json.loads('{"metainfo": {"version": "0.9.8", "release_name": "E.D.S.", "json_schema_version": 1}}')))
+
+    with pytest.raises(AssertionError) as ex:
+        block.init_block_set()
+
+    assert str(ex.value) == 'the set must be configured to allow timeouts'
