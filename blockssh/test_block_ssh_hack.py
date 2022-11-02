@@ -1,5 +1,4 @@
-from unittest.mock import patch, create_autospec, Mock
-import pytest
+from unittest.mock import Mock
 import yaml
 import block_ssh_hack as block
 import json
@@ -61,9 +60,13 @@ def test_kex_method_drop():
     rv, details = block.check_log_line(input_line[16:].rstrip(), patterns)
     assert rv
 
+
 def test_get_block_set_details():
     block.run_nft_command = Mock(return_value=(
-        json.loads('[{"set": {"family": "ip", "name": "SSH_DEVLOG_BLOCK", "table": "filter", "type": "ipv4_addr", "handle": 15, "flags": ["timeout"]}}]'),
+        json.loads('[{"set":'
+                   '{"family": "ip", "name": "SSH_DEVLOG_BLOCK", "table": "filter",'
+                   '"type": "ipv4_addr", "handle": 15, "flags": ["timeout"]}'
+                   '}]'),
         json.loads('{"metainfo": {"version": "0.9.8", "release_name": "E.D.S.", "json_schema_version": 1}}')))
     block.list_table_sets = Mock(return_value=['SSH_DEVLOG_BLOCK'])
     assert block.init_block_set() is None
