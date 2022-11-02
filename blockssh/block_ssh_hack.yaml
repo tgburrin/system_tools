@@ -8,6 +8,13 @@ auth_expressions:
   - '^(?P<HOSTNAME>[a-zA-Z0-9]+) sshd\[\d+\]: Received disconnect from (?P<IPADDRESS>.*) port \d+:11: ?.* \[preauth\]$'
   - '^(?P<HOSTNAME>[a-zA-Z0-9]+) sshd\[\d+\]: drop connection #\d+ from \[(?P<IPADDRESS>.*)\]:\d+ on \[.*\]:\d+ past MaxStartups$'
   - '^(?P<HOSTNAME>[a-zA-Z0-9]+) sshd\[\d+\]: Unable to negotiate with (?P<IPADDRESS>.*) port \d+: no matching key exchange method found'
+allowlist_expressions:
+  usernames:
+    - '^tgburrin$'
+  ipaddress:
+    - '^172\.16\.1\.'
+    - '^172\.30\.0\.'
+    - '^172\.30\.1\.'
 db_path: /var/lib/blockssh/blockssh.db
 logging_level: DEBUG
 nf_table: filter

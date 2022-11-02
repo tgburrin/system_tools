@@ -189,6 +189,7 @@ def create_stats_table():
     c.close()
     STATS_DB.commit()
 
+
 def parse_arguments() -> dict:
     parser = argparse.ArgumentParser(
         description="A script for blocking failed ssh connections"
