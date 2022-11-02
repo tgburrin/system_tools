@@ -9,6 +9,7 @@ auth_expressions:
   - '^(?P<HOSTNAME>[a-zA-Z0-9]+) sshd\[\d+\]: drop connection #\d+ from \[(?P<IPADDRESS>.*)\]:\d+ on \[.*\]:\d+ past MaxStartups$'
   - '^(?P<HOSTNAME>[a-zA-Z0-9]+) sshd\[\d+\]: Unable to negotiate with (?P<IPADDRESS>.*) port \d+: no matching key exchange method found'
 db_path: /tmp/blockssh.db
-nft_table: filter
-nft_auth_log_set: SSH_LOG_BLOCK
-nft_rate_lim_set: SSH_RATE_BLOCK
+logging_level: DEBUG
+nf_table: filter
+nf_duration_min: 1
+nf_auth_log_set: SSH_DEV_LOG_BLOCK
