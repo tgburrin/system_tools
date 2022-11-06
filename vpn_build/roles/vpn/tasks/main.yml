@@ -1,0 +1,235 @@
+---
+- name: IP forwarding enable
+  copy:
+    src: 50-network.conf
+    dest: /etc/sysctl.d/
+
+- name: Activate ip forwarding
+  sysctl:
+    name: net.ipv4.ip_forward
+    value: '1'
+    sysctl_set: yes
+
+- name: SSH directory
+  file:
+    path: /root/.ssh/
+    state: directory
+    mode: '700'
+
+- name: Remove existing allowed keys
+  file:
+    path: /root/.ssh/authorized_keys
+    state: absent
+
+- name: Add SSH Key
+  lineinfile:
+    path: /root/.ssh/authorized_keys
+    line: "{{ item }}"
+    mode: '600'
+    create: yes
+  with_items:
+    - "{{ tgb_public_key }}"
+    - "{{ tgb_aws_public_key }}"
+
+- name: Installs directory
+  file:
+    path: /installs
+    state: directory
+    mode: '755'
+
+- name: Copy tarball
+  copy:
+    src: "{{ item }}"
+    dest: /installs/
+  with_items:
+    - "strongswan-{{ strongswan_version }}.tar.gz"
+    - strongswan-config
+
+- name: Set config executable
+  file:
+    path: /installs/strongswan-config
+    mode: '755'
+
+- name: decompress
+  unarchive:
+    src: "/installs/strongswan-{{ strongswan_version }}.tar.gz"
+    dest: /installs/
+    remote_src: yes
+    creates: "/installs/strongswan-{{ strongswan_version }}"
+
+- name: Update Repository cache
+  apt:
+    update_cache: true
+    cache_valid_time: 3600
+    force_apt_get: true
+
+- name: Remove Packages
+  package: name={{ item }} state=absent
+  with_items:
+    - iptables
+
+- name: Install packages
+  package: name={{ item }} state=present
+  with_items:
+    - python3-boto3
+    - gcc
+    - make
+    - flex
+    - bison
+    - libgmp-dev
+    - sqlite3
+    - libsqlite3-dev
+    - libssl-dev
+    - sysstat
+    - iptraf-ng
+    - bind9-dnsutils
+    - nftables
+
+- name: Clear strongswan build
+  shell:
+    cmd: make distclean
+    chdir: "/installs/strongswan-{{ strongswan_version }}"
+  when: cleanbuild is defined and cleanbuild == "true"
+
+- name: Configure strongswan
+  shell:
+    cmd: /installs/strongswan-config
+    chdir: "/installs/strongswan-{{ strongswan_version }}"
+    creates: "/installs/strongswan-{{ strongswan_version }}/Makefile"
+
+- name: Make strongswan
+  shell:
+    cmd: make -j3
+    chdir: "/installs/strongswan-{{ strongswan_version }}"
+
+- name: Install strongswan
+  shell:
+    cmd: make install
+    chdir: "/installs/strongswan-{{ strongswan_version }}"
+    creates: /usr/local/strongswan/
+
+- name: Add strongswan path
+  copy:
+    src: ipsec.sh
+    dest: /etc/profile.d/
+
+- name: Add root aliases
+  lineinfile:
+    path: /root/.bashrc
+    line: "{{ item }}"
+  with_items:
+    - "alias get_my_ip='aws ec2 describe-instances --instance-ids `uname -n` --query \"Reservations[*].Instances[*].PublicIpAddress\" --output text'"
+    - "alias ipsec_status='ipsec stroke statusall'"
+
+- name: Add utility script
+  copy:
+    src: get_instance.py
+    dest: /root/
+    mode: "755"
+
+- name: Create ansible creds directory
+  file:
+    path: /root/.aws
+    state: directory
+    mode: "700"
+
+- name: Create aws creds file
+  copy:
+    dest: /root/.aws/config
+    content: |
+      [default]
+      region=us-east-1
+      aws_access_key_id={{ aws_access_key }}
+      aws_secret_access_key={{ aws_secret_key }}
+
+- name: Copy interfaces files out
+  template:
+    src: "{{ item.src_name }}"
+    dest: "/etc/network/interfaces.d/{{ item.dst_name }}"
+  with_items:
+    - { src_name: dummy0.j2, dst_name: dummy0 }
+    - { src_name: xfrm0.j2, dst_name: xfrm0 }
+
+- name: Add the interfaces
+  shell:
+    cmd: ifup "{{ item }}"
+  with_items:
+    - dummy0
+    - xfrm0
+
+- name: Add strongswan config
+  copy:
+    content: "{{ ipsec_config }}"
+    dest: /usr/local/strongswan/etc/ipsec.conf.orig
+
+- name: Add strongswan secrets
+  copy:
+    content: "{{ ipsec_secret }}"
+    dest: /usr/local/strongswan/etc/ipsec.secrets
+    mode: "600"
+
+- name: Add swanctl config
+  template:
+    src: home.conf.j2
+    dest: /usr/local/strongswan/etc/swanctl/conf.d/home.conf
+
+- name: Copy service files
+  copy:
+    src: "{{ item }}"
+    dest: /etc/systemd/system/
+  with_items:
+    - ipsec.service
+    - charon.service
+    - swanctl.service
+
+- name: Restart the ipsec service
+  service:
+    name: ipsec.service
+    state: stopped
+  when: cleanbuild is defined and cleanbuild == "true"
+
+- name: Start the ipsec service
+  service:
+    name: ipsec.service
+    state: stopped
+    enabled: no
+
+- name: Start the charon service
+  service:
+    name: charon.service
+    state: started
+    enabled: yes
+
+- name: Restart the swanctl service
+  service:
+    name: swanctl.service
+    state: restarted
+  when: cleanbuild is defined and cleanbuild == "true"
+
+- name: Start the swanctl service
+  service:
+    name: swanctl.service
+    state: started
+    enabled: yes
+
+- name: Add nftables rules
+  template:
+    src: nftables.conf.j2
+    dest: /etc/nftables.conf
+
+- name: Add nftables service
+  copy:
+    src: nftables.service
+    dest: /etc/systemd/system/
+
+- name: Start nftables service
+  service:
+    name: nftables.service
+    state: restarted
+    enabled: yes
+
+- name: Fix vim
+  lineinfile:
+    path: /etc/vim/vimrc
+    regexp: '^" let g:skip_defaults_vim = 1'
+    line: "let g:skip_defaults_vim = 1"

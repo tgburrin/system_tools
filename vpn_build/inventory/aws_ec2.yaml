@@ -1,0 +1,11 @@
+---
+plugin: aws_ec2
+regions:
+  - us-east-1
+keyed_groups:
+  - prefix: tag
+    key: tags
+compose:
+  ansible_host: public_ip_address
+filters:
+  tag:instance_type: vpn

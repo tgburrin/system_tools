@@ -1,0 +1,1 @@
+./configure --prefix=/usr/local/strongswan --disable-shared --enable-static --enable-monolithic --enable-sqlite --enable-openssl --enable-files --enable-sql --enable-tnccs-20 --enable-counters --enable-lookip

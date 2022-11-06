@@ -1,0 +1,5 @@
+auto dummy0
+iface dummy0 inet static
+	pre-up /sbin/ip link add dummy0 type dummy
+	address 192.168.128.1
+	netmask 255.255.255.0

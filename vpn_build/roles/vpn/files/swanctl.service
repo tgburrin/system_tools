@@ -1,0 +1,13 @@
+[Unit]
+Description=strongswan configuration loader
+Requires=charon.service
+
+[Service]
+Type=oneshot
+ExecStartPre=/usr/bin/sleep 2
+ExecStart=/usr/local/strongswan/sbin/swanctl -q
+ExecReload=/usr/local/strongswan/sbin/swanctl -q
+RemainAfterExit=yes
+
+[Install]
+WantedBy=multi-user.target
