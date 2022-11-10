@@ -1,0 +1,11 @@
+[Unit]
+Description=IPSec tunnel service
+After=network.target
+
+[Service]
+Type=simple
+ExecStart=/usr/local/strongswan/sbin/ipsec start --nofork
+ExecReload=/bin/kill -USR1 ${MAINPID}
+
+[Install]
+WantedBy=multi-user.target

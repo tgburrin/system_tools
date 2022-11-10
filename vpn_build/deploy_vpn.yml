@@ -1,0 +1,8 @@
+---
+- name: set up vpn
+  hosts: "{{ hosts }}"
+  become: yes
+
+  roles:
+    - vpn
+

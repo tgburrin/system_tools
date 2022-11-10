@@ -1,0 +1,41 @@
+connections {
+   aws {
+      version = 2
+      mobike = no
+      local_addrs  = %any
+      remote_addrs = ec2vpn.tgburrin.dynu.net
+      proposals = aes256gcm16-sha512-modp4096
+
+      local {
+      	 id = kvasir.tgburrin.net
+         auth = psk
+      }
+
+      remote {
+      	 id = ec2vpn.tgburrin.dynu.net
+         auth = psk
+      }
+
+      children {
+         net-net {
+	    if_id_in = 1
+	    if_id_out = 1
+
+            inactivity = 15m
+	    start_action = trap
+	    close_action = trap
+            local_ts = {{ home_network_list|join(',') }}
+            remote_ts = {{ (ec2_network_list + ec2_internal_list)|join(',') }}
+            esp_proposals = aes256gcm16-sha512-modp4096
+         }
+      }
+   }
+}
+
+secrets {
+   ike-psk {
+      id-home = kvasir.tgburrin.net
+      id-aws = ec2vpn.tgburrin.dynu.net
+      secret = {{ vpn_shared_secret }}
+   }
+}
