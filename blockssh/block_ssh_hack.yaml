@@ -1,13 +1,13 @@
 ---
 auth_log: /var/log/auth.log
 auth_expressions:
-  - '^(?P<HOSTNAME>[a-zA-Z0-9]+) sshd\[\d+\]: Failed password for invalid user (?P<USERNAME>[a-zA-Z0-9]+) from (?P<IPADDRESS>.*) port \d+ ssh2$'
-  - '^(?P<HOSTNAME>[a-zA-Z0-9]+) sshd\[\d+\]: Failed password for (?P<USERNAME>[a-zA-Z0-9]+) from (?P<IPADDRESS>.*) port \d+ ssh2$'
-  - '^(?P<HOSTNAME>[a-zA-Z0-9]+) sshd\[\d+\]: Did not receive identification string from (?P<IPADDRESS>.*) port \d+$'
-  - '^(?P<HOSTNAME>[a-zA-Z0-9]+) sshd\[\d+\]: Failed none for invalid user (?P<USERNAME>[a-zA-Z0-9\s]+) from (?P<IPADDRESS>.*) port \d+ ssh2$'
-  - '^(?P<HOSTNAME>[a-zA-Z0-9]+) sshd\[\d+\]: Received disconnect from (?P<IPADDRESS>.*) port \d+:11: ?.* \[preauth\]$'
-  - '^(?P<HOSTNAME>[a-zA-Z0-9]+) sshd\[\d+\]: drop connection #\d+ from \[(?P<IPADDRESS>.*)\]:\d+ on \[.*\]:\d+ past MaxStartups$'
-  - '^(?P<HOSTNAME>[a-zA-Z0-9]+) sshd\[\d+\]: Unable to negotiate with (?P<IPADDRESS>.*) port \d+: no matching key exchange method found'
+  - '^(?P<HOSTNAME>[a-zA-Z0-9-]+) sshd\[\d+\]: Failed password for invalid user (?P<USERNAME>[a-zA-Z0-9]+) from (?P<IPADDRESS>.*) port \d+ ssh2$'
+  - '^(?P<HOSTNAME>[a-zA-Z0-9-]+) sshd\[\d+\]: Failed password for (?P<USERNAME>[a-zA-Z0-9]+) from (?P<IPADDRESS>.*) port \d+ ssh2$'
+  - '^(?P<HOSTNAME>[a-zA-Z0-9-]+) sshd\[\d+\]: Did not receive identification string from (?P<IPADDRESS>.*) port \d+$'
+  - '^(?P<HOSTNAME>[a-zA-Z0-9-]+) sshd\[\d+\]: Failed none for invalid user (?P<USERNAME>[a-zA-Z0-9\s]+) from (?P<IPADDRESS>.*) port \d+ ssh2$'
+  - '^(?P<HOSTNAME>[a-zA-Z0-9-]+) sshd\[\d+\]: Received disconnect from (?P<IPADDRESS>.*) port \d+:11: ?.* \[preauth\]$'
+  - '^(?P<HOSTNAME>[a-zA-Z0-9-]+) sshd\[\d+\]: drop connection #\d+ from \[(?P<IPADDRESS>.*)\]:\d+ on \[.*\]:\d+ past MaxStartups$'
+  - '^(?P<HOSTNAME>[a-zA-Z0-9-]+) sshd\[\d+\]: Unable to negotiate with (?P<IPADDRESS>.*) port \d+: no matching key exchange method found'
 allowlist_expressions:
   usernames:
     - '^tgburrin$'
@@ -19,4 +19,4 @@ db_path: /var/lib/blockssh/blockssh.db
 logging_level: DEBUG
 nf_table: filter
 nf_duration_min: 15
-nf_auth_log_set: SSH_LOG_BLOCK
+nf_auth_log_set: ssh_log_block
