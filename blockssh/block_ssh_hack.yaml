@@ -8,6 +8,8 @@ auth_expressions:
   - '^(?P<HOSTNAME>[a-zA-Z0-9-]+) sshd\[\d+\]: Received disconnect from (?P<IPADDRESS>.*) port \d+:11: ?.* \[preauth\]$'
   - '^(?P<HOSTNAME>[a-zA-Z0-9-]+) sshd\[\d+\]: drop connection #\d+ from \[(?P<IPADDRESS>.*)\]:\d+ on \[.*\]:\d+ past MaxStartups$'
   - '^(?P<HOSTNAME>[a-zA-Z0-9-]+) sshd\[\d+\]: Unable to negotiate with (?P<IPADDRESS>.*) port \d+: no matching key exchange method found'
+  - '^(?P<HOSTNAME>[a-zA-Z0-9-]+) sshd\[\d+\]: Invalid user (?P<USERNAME>[a-zA-Z0-9]+) from (?P<IPADDRESS>.*) port \d+'
+  - '^(?P<HOSTNAME>[a-zA-Z0-9-]+) sshd\[\d+\]: Connection closed by authenticating user (?P<USERNAME>[a-zA-Z0-9]+) (?P<IPADDRESS>.*) port \d \[preauth\]'
 allowlist_expressions:
   usernames:
     - '^tgburrin$'
