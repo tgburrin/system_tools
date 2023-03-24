@@ -47,7 +47,7 @@ def run_nft_command(cmd):
 def get_block_set_details():
     nftable = PROCESS_CFG['nf_table']
     block_set = PROCESS_CFG['nf_auth_log_set']
-    payload, metadata = run_nft_command(f"list set ip {nftable} {block_set}")
+    payload, metadata = run_nft_command(f"list set inet {nftable} {block_set}")
     rv = payload[0].get('set')
     if 'elem' in rv:
         del rv['elem']
@@ -58,7 +58,7 @@ def get_current_block_list():
     nftable = PROCESS_CFG['nf_table']
     block_set = PROCESS_CFG['nf_auth_log_set']
 
-    payload, metadata = run_nft_command(f"list set ip {nftable} {block_set}")
+    payload, metadata = run_nft_command(f"list set inet {nftable} {block_set}")
     rv = []
     for ipelem in payload[0].get('set').get('elem'):
         rv.append((ipelem.get('elem', {}).get('val')))
@@ -66,7 +66,7 @@ def get_current_block_list():
 
 
 def list_table_sets():
-    payload, metadata = run_nft_command("list sets ip")
+    payload, metadata = run_nft_command("list sets inet")
     rv = []
     for setinfo in payload:
         setdetails = setinfo.get('set')
@@ -82,11 +82,11 @@ def init_block_set():
     table_sets = list_table_sets()
     if nf_set not in table_sets:
         payload, metadata = run_nft_command(
-                f"add set ip {nf_table} {nf_set} {{ type ipv4_addr; flags dynamic, timeout;}}"
+                f"add set inet {nf_table} {nf_set} {{ type ipv4_addr; flags dynamic, timeout;}}"
             )
     else:
         set_details = get_block_set_details()
-        assert set_details.get('family') == 'ip', 'address family is not ipv4'
+        assert set_details.get('family') == 'inet', 'address family is not ipv4'
         assert set_details.get('type') == 'ipv4_addr', 'the set must be created to contain ipv4 addresses'
         assert 'timeout' in set_details.get('flags'), 'the set must be configured to allow timeouts'
 
@@ -128,7 +128,7 @@ def block_ip(addr):
     nf_table = PROCESS_CFG['nf_table']
 
     expr = f"{addr} timeout {PROCESS_CFG['nf_duration_min']}m"
-    cmd = f"add element ip {nf_table} {nf_set} {{ {expr} }}"
+    cmd = f"add element inet {nf_table} {nf_set} {{ {expr} }}"
     payload, metadata = run_nft_command(cmd)
     return True
 
