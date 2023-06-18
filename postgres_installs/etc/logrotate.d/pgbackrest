@@ -1,0 +1,8 @@
+/var/log/pgbackrest/*.log {
+	rotate 4
+	daily
+	missingok
+	notifempty
+	compress
+	delaycompress
+}

@@ -1,0 +1,3 @@
+# apt-get install build-essential libxml2-dev libyaml-dev libbz2-dev libssl-dev pkg-config zlib1g-dev
+
+./configure --prefix=/usr/local/pgbackrest

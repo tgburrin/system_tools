@@ -1,0 +1,12 @@
+[Unit]
+Description=PostgreSQL pre-requisite startup script
+RequiresMountsFor=/dbdata-ramdisk
+RequiresMountsFor=/var/lib/postgres
+
+[Service]
+Type=oneshot
+ExecStart=/var/lib/postgres/pg_prereq.sh
+StandardOutput=journal
+
+[Install]
+WantedBy=multi-user.target

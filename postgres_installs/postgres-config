@@ -1,0 +1,10 @@
+# apt-get -y install libreadline-dev bison flex zlib1g-dev libkrb5-dev libssl-dev libpam0g-dev libldap2-dev libossp-uuid-dev libsystemd-dev
+
+./configure \
+	--with-systemd \
+	--with-openssl \
+	--with-pam \
+	--with-gssapi \
+	--with-ldap \
+	--with-uuid=ossp \
+	--prefix=/usr/local/postgresql

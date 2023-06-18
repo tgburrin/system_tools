@@ -1,0 +1,35 @@
+[Unit]
+Description=PostgreSQL database server
+After=network.target postgresql_prereq.service blk-availability.service
+RequiresMountsFor=/var/lib/postgres/data /var/lib/postgres/ts1
+
+[Service]
+Type=notify
+TimeoutSec=300
+User=postgres
+Group=postgres
+
+EnvironmentFile=-/etc/default/postgresql
+
+SyslogIdentifier=postgres
+RuntimeDirectory=postgres
+RuntimeDirectoryMode=755
+
+ExecStart=/usr/local/postgresql/bin/postgres -D ${PGDATA}
+ExecReload=/bin/kill -HUP ${MAINPID}
+KillMode=mixed
+KillSignal=SIGINT
+
+# Due to PostgreSQL's use of shared memory, OOM killer is often overzealous in
+# killing Postgres, so adjust it downward
+OOMScoreAdjust=-200
+
+# Additional security-related features
+#PrivateTmp=true
+#ProtectHome=true
+#ProtectSystem=full
+#NoNewPrivileges=true
+
+[Install]
+WantedBy=multi-user.target
+

@@ -1,0 +1,2 @@
+PGROOT=/usr/local/postgresql/bin
+PGDATA=/var/lib/postgres/data/v14
