@@ -138,7 +138,8 @@ def process_log_lines(ifd, patterns):
     raw_line = ifd.readline()
     while raw_line != "":
         # ts = raw_line[:15]
-        line = raw_line[16:].rstrip()
+        # line = raw_line[16:].rstrip()
+        (ts, line) = raw_line.split(maxsplit=1)
         if line.startswith(MYHOST):  # this eliminates multiline syslog statements
             ismatch, addr_details = check_log_line(line, patterns)
             if ismatch:
